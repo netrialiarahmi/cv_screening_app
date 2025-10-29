@@ -1,0 +1,7 @@
+streamlit
+pandas
+PyMuPDF
+torch
+transformers
+accelerate
+sentence-transformers
