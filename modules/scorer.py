@@ -1,3 +1,4 @@
+import os
 import re
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
@@ -5,14 +6,19 @@ import streamlit as st
 
 @st.cache_resource
 def get_llama_pipeline():
-    """Load LLaMA model once and cache it."""
-    model_id = "meta-llama/Llama-3-8b-instruct"  # or any model you have access to
-    tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=True)
+    model_id = "meta-llama/Llama-3-8b-instruct"
+
+    # Ambil token dari environment
+    token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    if not token:
+        raise ValueError("❌ Missing HUGGINGFACEHUB_API_TOKEN environment variable")
+
+    tokenizer = AutoTokenizer.from_pretrained(model_id, token=token)
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, 
-        device_map="auto", 
-        torch_dtype=torch.float16, 
-        use_auth_token=True
+        model_id,
+        token=token,
+        device_map="auto",
+        torch_dtype=torch.float16,
     )
     pipe = pipeline("text-generation", model=model, tokenizer=tokenizer)
     return pipe
