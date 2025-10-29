@@ -1,8 +1,8 @@
 streamlit
 pandas
-PyMuPDF
 torch
-transformers
+transformers>=4.45.0
 accelerate
+peft
 huggingface_hub
-sentence-transformers
+PyMuPDF
