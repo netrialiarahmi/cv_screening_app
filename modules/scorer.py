@@ -6,7 +6,7 @@ import streamlit as st
 
 @st.cache_resource
 def get_llama_pipeline():
-    model_id = "meta-llama/Llama-3-8b-instruct"
+    model_id = "meta-llama/Llama-3.1-8B-Instruct"
 
     # Ambil token dari environment
     token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
