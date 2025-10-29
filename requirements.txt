@@ -4,4 +4,5 @@ PyMuPDF
 torch
 transformers
 accelerate
+huggingface_hub
 sentence-transformers
