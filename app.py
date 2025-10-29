@@ -4,58 +4,58 @@ from modules.extractor import extract_text_from_pdf
 from modules.scorer import score_with_llama
 from modules.utils import save_results
 
+# --- Streamlit setup ---
 st.set_page_config(page_title="AI CV Screening System", layout="wide")
 
-# --- Custom Navigation Bar ---
+# --- Navigation Bar ---
 st.markdown("""
     <style>
-    .navbar {
+    .main-title {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 700;
+        color: #003366;
+    }
+    .nav-container {
         display: flex;
         justify-content: center;
-        align-items: center;
-        gap: 30px;
-        background-color: #F4F6FF;
-        padding: 10px 0;
-        border-radius: 10px;
-        margin-bottom: 25px;
+        gap: 25px;
+        margin-bottom: 30px;
     }
-    .nav-item {
+    .nav-button {
+        background-color: #f5f7ff;
+        border: 2px solid #c9d4f0;
+        color: #003366;
         font-weight: 600;
-        font-size: 16px;
-        color: #333;
-        text-decoration: none;
-        padding: 10px 25px;
-        border-radius: 8px;
-        transition: 0.3s;
+        border-radius: 10px;
+        padding: 10px 30px;
+        cursor: pointer;
+        transition: all 0.3s;
     }
-    .nav-item:hover {
-        background-color: #007BFF;
-        color: white;
-    }
-    .active {
-        background-color: #007BFF;
+    .nav-button:hover {
+        background-color: #003366;
         color: white;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- Navigation State ---
+st.markdown("<h1 class='main-title'>📄 AI CV Screening System</h1>", unsafe_allow_html=True)
+
+# Navigation state
 if "page" not in st.session_state:
     st.session_state.page = "Upload"
 
-col1, col2 = st.columns([1,1])
-
+col1, col2 = st.columns([1, 1])
 with col1:
     if st.button("📤 Upload & Screening", use_container_width=True):
         st.session_state.page = "Upload"
-
 with col2:
     if st.button("📊 Dashboard", use_container_width=True):
         st.session_state.page = "Dashboard"
 
-# --- Page 1: Upload & Screening ---
+# --- PAGE 1: UPLOAD & SCREENING ---
 if st.session_state.page == "Upload":
-    st.title("📤 Upload CVs & Job Description")
+    st.subheader("📤 Upload CVs & Input Job Description")
 
     uploaded_files = st.file_uploader(
         "Upload CVs (PDF files only)",
@@ -75,9 +75,10 @@ if st.session_state.page == "Upload":
             progress = st.progress(0)
 
             for i, file in enumerate(uploaded_files):
-                progress.progress((i+1)/len(uploaded_files))
+                progress.progress((i + 1) / len(uploaded_files))
                 text = extract_text_from_pdf(file)
                 score, summary = score_with_llama(text, job_description)
+
                 results.append({
                     "Filename": file.name,
                     "Match Score": score,
@@ -92,14 +93,17 @@ if st.session_state.page == "Upload":
     else:
         st.info("Please upload at least one CV and fill in the Job Description.")
 
-# --- Page 2: Dashboard ---
+# --- PAGE 2: DASHBOARD ---
 elif st.session_state.page == "Dashboard":
-    st.title("📊 Screening Dashboard")
+    st.subheader("📊 Screening Dashboard")
 
     if "results" in st.session_state:
-        st.dataframe(st.session_state["results"], use_container_width=True)
+        df = st.session_state["results"]
 
-        csv = st.session_state["results"].to_csv(index=False).encode("utf-8")
+        st.dataframe(df, use_container_width=True)
+        st.bar_chart(df.set_index("Filename")["Match Score"])
+
+        csv = df.to_csv(index=False).encode("utf-8")
         st.download_button(
             label="⬇️ Download Results (CSV)",
             data=csv,
